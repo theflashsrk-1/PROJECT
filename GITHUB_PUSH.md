@@ -25,7 +25,7 @@ git push origin main
 ## Cloning for Deployment
 
 ```bash
-git clone [https://github.com/theflashsrk-1/PROJECT/](https://github.com/theflashsrk-1/PROJECT.git)
+git clone https://github.com/theflashsrk-1/PROJECT.git
 cd PROJECT
 ```
 
