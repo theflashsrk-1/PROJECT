@@ -1,9 +1,9 @@
 # Operation SHATTERED CROWN — Active Directory Delegation Cyber Range
 
 **Classification:** UNCLASSIFIED // EXERCISE ONLY
-**Domain Theme:** Corporate Enterprise — Financial Services AD Infrastructure
-**Network:** cyberange.local (simulated)
-**Platform:** Windows Server 2019 — OpenStack / QEMU-KVM
+**Domain Theme:** Corporate Enterprise — Financial Services AD Infrastructure\
+**Network:** cyberange.local (simulated)\
+**Platform:** Windows Server 2019 — OpenStack / QEMU-KVM\
 **APT Emulation:** APT29 (Cozy Bear / Midnight Blizzard / NOBELIUM)
 
 ---
