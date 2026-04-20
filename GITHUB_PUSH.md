@@ -16,7 +16,7 @@ git push -u origin main
 ## Updating
 
 ```bash
-cd Red-Range2
+cd PROJECT
 git add .
 git commit -m "Update: <description>"
 git push origin main
@@ -32,7 +32,7 @@ cd PROJECT
 ## File Structure
 
 ```
-Red-Range2/
+PROJECT/
 ├── README.md                    # Overview, machine summary, attack steps
 ├── STORYLINE.md                 # Full red/blue team narrative
 ├── NETWORK_DIAGRAM.md           # ASCII network diagrams + port matrix
