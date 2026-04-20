@@ -3,12 +3,12 @@
 ## Initial Setup
 
 ```bash
-git init Red-Range2
-cd Red-Range2
+git init PROJECT
+cd PROJECT
 cp -r /path/to/extracted/* .
 git add .
 git commit -m "Operation SHATTERED CROWN - Initial Release"
-git remote add origin https://github.com/hacktifytechnologies/Red-Range2.git
+git remote add origin https://github.com/theflashsrk-1/PROJECT.git
 git branch -M main
 git push -u origin main
 ```
