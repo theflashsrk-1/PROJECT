@@ -1,6 +1,6 @@
 # APT29 Operation SHATTERED CROWN — Active Directory Delegation Cyber Range
 
-**Classification:** UNCLASSIFIED // EXERCISE ONLY
+**Classification:** UNCLASSIFIED // EXERCISE ONLY\
 **Domain Theme:** Corporate Enterprise — Financial Services AD Infrastructure\
 **Network:** cyberange.local (simulated)\
 **Platform:** Windows Server 2019 — OpenStack / QEMU-KVM
