@@ -20,7 +20,7 @@
   - name: psh
     platform: windows
     command: |-
-      echo "[*] Scenario 2 preflight: RBCD path validation"
+      echo "[*] Range 2 preflight: RBCD path validation"
       echo "[*] Source machine account: SRV07-SQL$"
       echo "[*] Target AD object: DC02 computer object"
       echo "[*] Attribute of interest: msDS-AllowedToActOnBehalfOfOtherIdentity"
