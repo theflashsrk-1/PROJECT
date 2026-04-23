@@ -19,7 +19,7 @@
   - name: psh
     platform: windows
     command: |-
-      echo "[*] Scenario 2 preflight: Silver Ticket / MSSQL path validation"
+      echo "[*] Range 2 preflight: Silver Ticket / MSSQL path validation"
       echo "[*] Service SPN of interest: MSSQLSvc/SRV07-SQL.cyberange.local:1433"
       echo "[*] Service account context: svc_sql"
       echo "[*] Expected database: CorpData"
