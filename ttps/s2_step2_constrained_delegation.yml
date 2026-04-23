@@ -18,7 +18,7 @@
   - name: psh
     platform: windows
     command: |-
-      echo "[*] Scenario 2 preflight: constrained delegation path validation"
+      echo "[*] Range 2 preflight: constrained delegation path validation"
       echo "[*] Compromised account context: svc_web"
       echo "[*] Delegation target SPN: HTTP/SRV05-API.cyberange.local"
       echo "[*] Impersonation target: backup_admin"
